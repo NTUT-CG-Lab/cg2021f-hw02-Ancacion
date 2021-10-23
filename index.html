@@ -91,8 +91,9 @@
 		let camera, scene, renderer, effect;
 		let mesh, helper;
 		let inputkey; //讀取按鍵1234
+		let modelState = 1;
 		let linesInfro = {
-			location:"models/mmd/kizunaai/kizunaai.pmx",
+			location:"",
             line_locationx_1:0,
             line_locationy_1:0,
             line_locationx_2:0,
@@ -102,6 +103,12 @@
             line_locationx_4:0,
             line_locationy_4:0
 		};  //把1234的線座標存起來
+
+		let modelFile = [
+			'models/mmd/るいのれ式物述有栖_配布用フォルダ/物述有栖.pmx',
+			'models/mmd/kizunaai/kizunaai.pmx',
+            'models/mmd/『天宮こころ(Kokoro Amamiya)』/『天宮こころ(Kokoro Amamiya)』.pmx'
+		];
 
 		//let material1 = new THREE.LineBasicMaterial( { color: 0x00ff00 } );  //綠色
 		//let points1 = [];
@@ -166,7 +173,11 @@
 
 			}
 
-			const modelFile = 'models/mmd/kizunaai/kizunaai.pmx';
+			/*let modelFile = [
+			    'models/mmd/るいのれ式物述有栖_配布用フォルダ/物述有栖.pmx',
+				'models/mmd/kizunaai/kizunaai.pmx',
+                'models/mmd/『天宮こころ(Kokoro Amamiya)』/『天宮こころ(Kokoro Amamiya)』.pmx'
+		    ];*/
 			const vpdFiles = [
 				'models/mmd/vpds/01.vpd',
 				'models/mmd/vpds/02.vpd',
@@ -185,11 +196,11 @@
 
 			const loader = new MMDLoader();
 
-			loader.load(modelFile, function (object) {
+			loader.load(modelFile[modelState], function (object) {
 
 				mesh = object;
 				mesh.position.y = - 10;
-
+                mesh.name = "mesh";
 				scene.add(mesh);
 
 				let vpdIndex = 0;
@@ -336,6 +347,7 @@
 				onChangeMorph();
 				onChangePose();
 				//onKeyDown();
+				//initJSONFile();
 
 				poses.open();
 				morphs.open();
@@ -369,6 +381,8 @@
 
 						linesInfro.line_locationx_1 = mouseWorld.x;
 						linesInfro.line_locationy_1 = mouseWorld.y;
+						decideState();
+						//linesInfro.location = "";
 
 						scene.remove( scene.getObjectByName("line1"));
 						scene.add(line1);
@@ -385,6 +399,7 @@
 
 						linesInfro.line_locationx_2 = mouseWorld.x;
 						linesInfro.line_locationy_2 = mouseWorld.y;
+						decideState();
 
 						scene.remove( scene.getObjectByName("line2"));
 						scene.add(line2);
@@ -401,6 +416,7 @@
 
 						linesInfro.line_locationx_3 = mouseWorld.x;
 						linesInfro.line_locationy_3 = mouseWorld.y;
+                        decideState();
 
 						scene.remove( scene.getObjectByName("line3"));
 						scene.add(line3);
@@ -417,6 +433,7 @@
 
 						linesInfro.line_locationx_4 = mouseWorld.x;
 						linesInfro.line_locationy_4 = mouseWorld.y;
+						decideState();
 
 						scene.remove( scene.getObjectByName("line4"));
 						scene.add(line4);
@@ -464,12 +481,40 @@
 			if (event.keyCode == 65) {
                 console.log('you click A!');
 			    inputkey = 65;
-
+                if(modelState == 0)
+				{
+					modelState = 2;
+					loadertest();
+				}  
+				else if(modelState == 1)
+				{
+					modelState = 0;
+					loadertest();
+				}
+				else if(modelState == 2)
+				{
+					modelState = 1;
+					loadertest();
+				}  
 			}
 			if (event.keyCode == 68) {
                 console.log('you click D!');
 			    inputkey = 68;
-
+				if(modelState == 0)
+				{
+                    modelState = 1;
+					loadertest();
+				}    
+				else if(modelState == 1)
+				{
+                    modelState = 2;
+					loadertest();
+				}     	    
+				else if(modelState == 2)
+				{
+                    modelState = 0;
+					loadertest();
+				}	     	    
 			}
 		};
 
@@ -510,19 +555,52 @@
 
 		function openJSONFile() {
 			//載入模型json並確認有無讀取到
-            var dataUrl = "./model_list.json";
-			var modelData = new XMLHttpRequest();
+            let dataUrl = "./model_data.json";
+			let modelData = new XMLHttpRequest();
 			modelData.open('GET',dataUrl, true);
 			modelData.send();
 			modelData.onload = function () {
-                var data = JSON.parse(this.responseText);
+                let data = JSON.parse(this.responseText);
                 console.log(data);
+				console.log(data.modellist[modelState].location);
+				console.log(linesInfro.location);
+				console.log(modelState);
+                if(data.modellist[0].location == linesInfro.location){
+                    data.modellist[0].line_locationx_1 = linesInfro.line_locationx_1;
+					console.log(data.modellist[0].line_locationx_1);
+				}
+                if(data.modellist[1].location == linesInfro.location){
+                    data.modellist[1].line_locationx_1 = linesInfro.line_locationx_1;
+					console.log(data.modellist[1].line_locationx_1);
+				}
+				if(data.modellist[2].location == linesInfro.location){
+                    data.modellist[2].line_locationx_1 = linesInfro.line_locationx_1;
+					console.log(data.modellist[2].line_locationx_1);
+				}
 				//data.line_locationx_1 = 1;
-				if(modelData.modellist == "models/mmd/kizunaai/kizunaai.pmx")
-			    {
-                    console.log('Now at kizunaAI!');
-			    }
             }
+		}
+
+		/*function initJSONFile() {
+			//載入模型json並確認有無讀取到
+            let dataUrl = "./model_data.json";
+			let modelData = new XMLHttpRequest();
+			modelData.open('GET',dataUrl, true);
+			modelData.send();
+			modelData.onload = function () {
+                let data = JSON.parse(this.responseText);
+                modelState = data.modellist[0].location;
+				//data.line_locationx_1 = 1;
+            }
+		}*/
+
+		function decideState() {  //確定linesInfro的location
+			if(modelState == 0)
+				linesInfro.location = "models/mmd/るいのれ式物述有栖_配布用フォルダ/物述有栖.pmx";
+			else if(modelState == 1)
+				linesInfro.location = "models/mmd/kizunaai/kizunaai.pmx";
+			else if(modelState == 2)
+				linesInfro.location = "models/mmd/『天宮こころ(Kokoro Amamiya)』/『天宮こころ(Kokoro Amamiya)』.pmx";
 		}
 
 		function onWindowResize() {
@@ -539,6 +617,59 @@
 		}
 
 		//
+		function loadertest() {
+			const loader = new MMDLoader();
+
+			loader.load(modelFile[modelState], function (object) {
+
+				mesh = object;
+				mesh.position.y = - 10;
+                mesh.name = "mesh";
+				scene.remove( scene.getObjectByName("mesh"));
+
+				scene.add(mesh);
+
+				let vpdIndex = 0;
+
+				function loadVpd() {
+
+					const vpdFile = vpdFiles[vpdIndex];
+
+					loader.loadVPD(vpdFile, false, function (vpd) {
+
+						vpds.push(vpd);
+
+						vpdIndex++;
+
+						if (vpdIndex < vpdFiles.length) {
+
+							loadVpd();
+
+						} else {
+
+							initGui();
+
+						}
+
+					}, onProgress, null);
+
+				}
+
+				//loadVpd();
+
+			}, onProgress, null);
+		}
+
+		function onProgress(xhr) {
+
+            if (xhr.lengthComputable) {
+
+	            const percentComplete = xhr.loaded / xhr.total * 100;
+	            console.log(Math.round(percentComplete, 2) + '% downloaded');
+
+            }
+
+        }
 
 		function animate() {
 
