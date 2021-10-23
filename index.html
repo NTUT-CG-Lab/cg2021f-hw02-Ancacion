@@ -47,7 +47,7 @@
 			//addChild 要比 renderModal 先呼叫
 			so.addChild("視角可以移動及放大", 2, true);
 			so.addChild("在畫面上畫出左眼的邊框", 2, true);
-			so.addChild("複製左眼邊框變化到右眼", 2, false);
+			so.addChild("複製左眼邊框變化到右眼", 2, true);
 			so.addChild("可選擇當前讀取角色或按鍵選擇上 / 下一隻角色", 1, false);
 			so.addChild("可儲存座標點檔案", 1, false);
 			so.addChild("回答問題", 2, true);
@@ -91,7 +91,17 @@
 		let camera, scene, renderer, effect;
 		let mesh, helper;
 		let inputkey; //讀取按鍵1234
-		let linesInfro;  //把1234的線座標存起來
+		let linesInfro = {
+			location:"models/mmd/kizunaai/kizunaai.pmx",
+            line_locationx_1:0,
+            line_locationy_1:0,
+            line_locationx_2:0,
+            line_locationy_2:0,
+            line_locationx_3:0,
+            line_locationy_3:0,
+            line_locationx_4:0,
+            line_locationy_4:0
+		};  //把1234的線座標存起來
 
 		//let material1 = new THREE.LineBasicMaterial( { color: 0x00ff00 } );  //綠色
 		//let points1 = [];
@@ -342,7 +352,7 @@
                 -((e.clientY - top + 1) / height) * 2 + 1,
                 (camera.near + camera.far) / (camera.near - camera.far),
             );
-			console.log(mouseWorld);  //在console內觀看結果
+			//console.log(mouseWorld);  //在console內觀看結果
 			console.log('inputkey = ' + inputkey);
             mouseWorld.unproject(camera);
             document.onclick = function () {  //點擊後畫線
@@ -357,6 +367,9 @@
 				        let line1 = new THREE.Line( geometry1, material1 );
 						line1.name = "line1";
 
+						linesInfro.line_locationx_1 = mouseWorld.x;
+						linesInfro.line_locationy_1 = mouseWorld.y;
+
 						scene.remove( scene.getObjectByName("line1"));
 						scene.add(line1);
 						break;
@@ -369,6 +382,9 @@
                         let geometry2 = new THREE.BufferGeometry().setFromPoints( points2 );
 				        let line2 = new THREE.Line( geometry2, material2 );
 						line2.name = "line2";
+
+						linesInfro.line_locationx_2 = mouseWorld.x;
+						linesInfro.line_locationy_2 = mouseWorld.y;
 
 						scene.remove( scene.getObjectByName("line2"));
 						scene.add(line2);
@@ -383,6 +399,9 @@
 				        let line3 = new THREE.Line( geometry3, material3 );
 						line3.name = "line3";
 
+						linesInfro.line_locationx_3 = mouseWorld.x;
+						linesInfro.line_locationy_3 = mouseWorld.y;
+
 						scene.remove( scene.getObjectByName("line3"));
 						scene.add(line3);
 						break;
@@ -395,6 +414,9 @@
                         let geometry4 = new THREE.BufferGeometry().setFromPoints( points4 );
 				        let line4 = new THREE.Line( geometry4, material4 );
 						line4.name = "line4";
+
+						linesInfro.line_locationx_4 = mouseWorld.x;
+						linesInfro.line_locationy_4 = mouseWorld.y;
 
 						scene.remove( scene.getObjectByName("line4"));
 						scene.add(line4);
@@ -427,12 +449,17 @@
 			if (event.keyCode == 81) {
                 console.log('you click Q!');
 			    inputkey = 81;
-
+                rightLines();
 			}
 			if (event.keyCode == 83) {
                 console.log('you click S!');
 			    inputkey = 83;
-
+                //model_list
+				//console.log(linesInfro);
+                //if(linesInfro.location == "models/mmd/kizunaai/kizunaai.pmx")
+				//{
+                openJSONFile();
+				//}
 			}
 			if (event.keyCode == 65) {
                 console.log('you click A!');
@@ -445,6 +472,58 @@
 
 			}
 		};
+
+        function rightLines() {    //畫左邊的線條
+			let materialPurple = new THREE.LineBasicMaterial( { color: 0xff00ff } );  //紫色
+            drawPurple(materialPurple, -(linesInfro.line_locationx_1), linesInfro.line_locationy_1, "line2-1");
+			drawPurple(materialPurple, -(linesInfro.line_locationx_3), linesInfro.line_locationy_3, "line2-3");
+			let materialLightBlue = new THREE.LineBasicMaterial( { color: 0xaaaaff } );  //淡藍
+			drawLightBlue(materialLightBlue, -(linesInfro.line_locationx_2), linesInfro.line_locationy_2, "line2-2");
+			drawLightBlue(materialLightBlue, -(linesInfro.line_locationx_4), linesInfro.line_locationy_4, "line2-4");
+		}
+
+		function drawPurple(material, mouseWorldx, mouseWorldy, lineID) {
+			let points = [];
+            points.push( new THREE.Vector3( mouseWorldx - 1, mouseWorldy, 20 ) );
+            points.push( new THREE.Vector3( mouseWorldx + 1, mouseWorldy, 20 ) );
+
+            let geometry = new THREE.BufferGeometry().setFromPoints( points );
+			let line = new THREE.Line( geometry, material );
+			line.name = lineID;
+
+			scene.remove( scene.getObjectByName(lineID));
+			scene.add(line);
+		}
+
+		function drawLightBlue(material, mouseWorldx, mouseWorldy, lineID) {
+			let points = [];
+            points.push( new THREE.Vector3( mouseWorldx, mouseWorldy - 1, 20 ) );
+            points.push( new THREE.Vector3( mouseWorldx, mouseWorldy + 1, 20 ) );
+
+            let geometry = new THREE.BufferGeometry().setFromPoints( points );
+			let line = new THREE.Line( geometry, material );
+			line.name = lineID;
+
+			scene.remove( scene.getObjectByName(lineID));
+			scene.add(line);
+		}
+
+		function openJSONFile() {
+			//載入模型json並確認有無讀取到
+            var dataUrl = "./model_list.json";
+			var modelData = new XMLHttpRequest();
+			modelData.open('GET',dataUrl, true);
+			modelData.send();
+			modelData.onload = function () {
+                var data = JSON.parse(this.responseText);
+                console.log(data);
+				//data.line_locationx_1 = 1;
+				if(modelData.modellist == "models/mmd/kizunaai/kizunaai.pmx")
+			    {
+                    console.log('Now at kizunaAI!');
+			    }
+            }
+		}
 
 		function onWindowResize() {
 
