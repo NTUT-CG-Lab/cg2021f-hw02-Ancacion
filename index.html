@@ -92,7 +92,7 @@
 		let mesh, helper;
 		let inputkey; //讀取按鍵1234
 		let modelState = 1;
-		let linesInfro = {
+		var linesInfro = {
 			location:"",
             line_locationx_1:0,
             line_locationy_1:0,
@@ -471,12 +471,8 @@
 			if (event.keyCode == 83) {
                 console.log('you click S!');
 			    inputkey = 83;
-                //model_list
-				//console.log(linesInfro);
-                //if(linesInfro.location == "models/mmd/kizunaai/kizunaai.pmx")
-				//{
+				console.log(linesInfro);
                 openJSONFile();
-				//}
 			}
 			if (event.keyCode == 65) {
                 console.log('you click A!');
@@ -554,8 +550,37 @@
 		}
 
 		function openJSONFile() {
+            var data = JSON.stringify(linesInfro);
+            var outputFile;
+			if(modelState == 0) {
+                outputFile = "物述有栖_modelData.json";
+			}
+			else if(modelState == 1) {
+				outputFile = "kizunaai_modelData.json";
+			}
+			else if(modelState == 2){
+				outputFile = "天宮こころ_modelData.json";
+			}
+			console.log(outputFile);
+
+			var file = new Blob([data], {type: "application/json"});
+			if (window.navigator.msSaveOrOpenBlob) // IE10+
+                window.navigator.msSaveOrOpenBlob(file, outputFile);
+            else { // Others
+				console.log("ping!");
+                var a = document.createElement("a"),
+                        url = URL.createObjectURL(file);
+                a.href = url;
+                a.download = outputFile;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);  
+                }, 0); 
+            }
 			//載入模型json並確認有無讀取到
-            let dataUrl = "./model_data.json";
+            /*let dataUrl = "./model_data.json";
 			let modelData = new XMLHttpRequest();
 			modelData.open('GET',dataUrl, true);
 			modelData.send();
@@ -578,7 +603,7 @@
 					console.log(data.modellist[2].line_locationx_1);
 				}
 				//data.line_locationx_1 = 1;
-            }
+            }*/
 		}
 
 		/*function initJSONFile() {
