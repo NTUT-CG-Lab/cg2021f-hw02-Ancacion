@@ -564,9 +564,9 @@
 			console.log(outputFile);
 
 			var file = new Blob([data], {type: "application/json"});
-			if (window.navigator.msSaveOrOpenBlob) // IE10+
+			if (window.navigator.msSaveOrOpenBlob) // work on IE10+
                 window.navigator.msSaveOrOpenBlob(file, outputFile);
-            else { // Others
+            else { // Others like google chrome
 				console.log("ping!");
                 var a = document.createElement("a"),
                         url = URL.createObjectURL(file);
